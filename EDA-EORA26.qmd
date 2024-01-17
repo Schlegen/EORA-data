@@ -1,0 +1,70 @@
+---
+title: "EDA-EORA26"
+format: html
+editor: visual
+---
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+year <- 2013
+
+data_dir <- "data/EORA-26/"
+path_data <- paste0(data_dir, "Eora26_", year, "_bp/", "Eora26_", year, "_bp_VA.txt")
+#path_col_labels <- paste0(data_dir, "Eora26_", year, "_bp/", "labels_VA.txt")
+path_row_labels<- paste0(data_dir, "Eora26_", year, "_bp/", "labels_T.txt")
+VA_matrix <- as.matrix(data.table::fread(path_data, header = F))
+```
+
+## Value added
+
+In order, lines are :
+
+\- Compensation of employees D.1\
+- Taxes on production D.29\
+- Subsidies on production D.39\
+- Net operating surplus B.2n\
+- Net mixed income B.3n\
+- Consumption of fixed capital K.1
+
+```{r}
+VA_matrix <- as.matrix(data.table::fread(path_data, header = F))
+VA_vect = VA_matrix[1,] + VA_matrix[2,] - VA_matrix[3,] + VA_matrix[4,] + VA_matrix[5,] + VA_matrix[6,]
+VA_vect
+```
+
+```{r}
+df  <- data.table::fread(path_row_labels, header = F, colClasses=c("character")) %>% rename(
+  "Country1" = "V1",
+  "Country2" = "V2",
+  "AggSector" = "V3",
+  "Sector" = "V4"
+) %>% select(Country1, Country2, AggSector, Sector)
+
+VA_matrix <- as.matrix(data.table::fread(path_data, header = F))
+df  <- cbind(df, t(VA_matrix)) %>% rename(
+  "Compensation of employees" = "V1",
+  "Taxes on production" = "V2",
+  "Subsidies on production" = "V3",
+  "Net operating surplus" = "V4",
+  "Net mixed income" = "V5",
+  "Consumption of fixed capital" = "V6"
+)
+
+df[,'Added Value'] <- df[, 'Compensation of employees'] +  df[, 'Taxes on production'] - df[, 'Subsidies on production'] + df[, 'Net operating surplus'] + df[, 'Net mixed income'] + df[, 'Consumption of fixed capital'] 
+
+head(df)
+```
+
+```{r}
+
+```
+
+```{}
+```
+
+TODO : Loop on year
+
+see if it is in ISO3
