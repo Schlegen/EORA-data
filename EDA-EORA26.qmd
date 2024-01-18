@@ -32,16 +32,16 @@ In order, lines are :
 ```{r}
 VA_matrix <- as.matrix(data.table::fread(path_data, header = F))
 VA_vect = VA_matrix[1,] + VA_matrix[2,] - VA_matrix[3,] + VA_matrix[4,] + VA_matrix[5,] + VA_matrix[6,]
-VA_vect
+
 ```
 
 ```{r}
 df  <- data.table::fread(path_row_labels, header = F, colClasses=c("character")) %>% rename(
   "Country1" = "V1",
-  "Country2" = "V2",
+  "Country" = "V2",
   "AggSector" = "V3",
   "Sector" = "V4"
-) %>% select(Country1, Country2, AggSector, Sector)
+) %>% select(Country, AggSector, Sector)
 
 VA_matrix <- as.matrix(data.table::fread(path_data, header = F))
 df  <- cbind(df, t(VA_matrix)) %>% rename(
@@ -55,16 +55,17 @@ df  <- cbind(df, t(VA_matrix)) %>% rename(
 
 df[,'Added Value'] <- df[, 'Compensation of employees'] +  df[, 'Taxes on production'] - df[, 'Subsidies on production'] + df[, 'Net operating surplus'] + df[, 'Net mixed income'] + df[, 'Consumption of fixed capital'] 
 
+df <- df %>% select('Country', 'AggSector', 'Sector', 'Added Value')
+
 head(df)
 ```
 
 ```{r}
-
+df[Country == 'AFG'] %>% select('AggSector', 'Sector')
 ```
 
-```{}
-```
+TODO :
 
-TODO : Loop on year
-
-see if it is in ISO3
+-   loop on year
+-   agregate by sector of interest
+-   see if it is in ISO3
